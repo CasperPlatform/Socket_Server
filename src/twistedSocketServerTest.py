@@ -14,13 +14,13 @@ class USBclient(Protocol):
 
     def cmdReceived(self, cmd):
         serServ.transport.write(cmd)
+        #leaving all newlines for debug reasons
         print cmd, ' - sent to Arduino.'
         pass
 
     def dataReceived(self,data):
         print 'USBclient.dataReceived called with:'
         print str(data)
-
 
 class CasperProtocol(Protocol):
     def __init__(self,clients):
@@ -39,12 +39,13 @@ class CasperProtocol(Protocol):
 
         myArduino = USBclient()
         stringit = str(data)
-        derp = stringit.strip('')
+        dataToSend = stringit.strip('')
+        #Arduino .ino needs \n to read string
         #derp = derp.strip('\n')
+        # Im leaving all the newlines foe debug reasons
+        print ">"+dataToSend+"<"
 
-        print ">"+derp+"<"
-
-        if derp == 'Direction:\n':
+        if dataToSend == 'Direction:\n':
             myArduino.cmdReceived("2\n")
         elif derp == 'Direction : Right\n':
             myArduino.cmdReceived("1\n")
@@ -55,8 +56,6 @@ class CasperProtocol(Protocol):
         else:
             myArduino.cmdReceived("else\n")
             pass
-
-
 
 
 
