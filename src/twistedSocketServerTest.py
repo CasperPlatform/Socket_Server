@@ -45,6 +45,8 @@ class CasperProtocol(Protocol):
         # Im leaving all the newlines foe debug reasons
         print ">"+dataToSend+"<"
 
+        # convert the data sent from Client to numbers
+        # relateing to motor control on the Arduino
         if dataToSend == 'Direction:\n':
             myArduino.cmdReceived("2\n")
         elif derp == 'Direction : Right\n':
@@ -54,6 +56,8 @@ class CasperProtocol(Protocol):
         elif derp == 'Direction : Center\n':
             myArduino.cmdReceived("0\n")
         else:
+            # in case the data dosent match send "else"
+            # this will be returned from arduino
             myArduino.cmdReceived("else\n")
             pass
 
