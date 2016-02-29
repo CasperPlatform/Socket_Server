@@ -1,10 +1,8 @@
-import sys
-import twisted
-from urlparse import urlparse
-from twisted.web import server, resource
-from twisted.internet import reactor
 from twisted.internet.protocol import Factory, Protocol
+from twisted.internet import reactor
 from twisted.internet.serialport import SerialPort
+import sys
+import serial
 
 serServ = None
 
@@ -16,6 +14,7 @@ class USBclient(Protocol):
 
     def cmdReceived(self, cmd):
         serServ.transport.write(cmd)
+        #leaving all newlines for debug reasons
         print cmd, ' - sent to Arduino.'
         pass
 
@@ -23,25 +22,61 @@ class USBclient(Protocol):
         print 'USBclient.dataReceived called with:'
         print str(data)
 
-class HTTPserver(resource.Resource):
-    isLeaf = True
-    def render_GET(self, request):      #passes the data from the get request
-        print 'HTTP request received'
+class CasperProtocol(Protocol):
+    def __init__(self,clients):
+        print 'new protocol instance'
+        self.clients = clients
+
+    def connectionMade(self):
+        self.clients.append(self)
+        print 'A client has connected'
+        print "clients are ", self.clients
+    def connectionLost(self, reason):
+        self.clients.remove(self)
+        print 'A client disconnected'
+        print "clients are ", self.clients
+    def dataReceived(self, data):
+
         myArduino = USBclient()
-        stringit = str(request)
-        parse = stringit.split()
-        command, path, version = parse
-        myArduino.cmdReceived(path)
+        stringit = str(data)
+        dataToSend = stringit.strip('')
+        #Arduino .ino needs \n to read string
+        #derp = derp.strip('\n')
+        # Im leaving all the newlines foe debug reasons
+        print ">"+dataToSend+"<"
 
-class cmdTransport(Protocol):
-    def __init__(self, factory):
-        self.factory = factory
+        # convert the data sent from Client to numbers
+        # relateing to motor control on the Arduino
+        if dataToSend == 'Direction:\n':
+            myArduino.cmdReceived("2\n")
+        elif derp == 'Direction : Right\n':
+            myArduino.cmdReceived("1\n")
+        elif derp == 'Direction : Left\n':
+            myArduino.cmdReceived("2\n")
+        elif derp == 'Direction : Center\n':
+            myArduino.cmdReceived("0\n")
+        else:
+            # in case the data dosent match send "else"
+            # this will be returned from arduino
+            myArduino.cmdReceived("else\n")
+            pass
 
-class cmdTransportFactory(Factory):
-    protocol = cmdTransport
 
-if __name__ == '__main__':
-    HTTPsetup = server.Site(HTTPserver())
-    reactor.listenTCP(5002, HTTPsetup)
-    SerialPort(USBclient(), '/dev/cu.wchusbserial410', reactor, baudrate='9600')
-    reactor.run()
+
+class SmartcarFactory(Factory):
+    def __init__(self):
+        print 'initing'
+        self.tokens={}
+        self.clients = []
+    def buildProtocol(self, addr):
+        return CasperProtocol(self.clients)
+
+print sys.byteorder
+Port = int(sys.argv[1])
+# factory = Factory()
+# factory.clients = []
+# factory.protocol = CasperProtocol
+reactor.listenTCP(Port,SmartcarFactory())
+SerialPort(USBclient(), '/dev/cu.wchusbserial410', reactor, baudrate='9600')
+print 'server started on', Port
+reactor.run()
