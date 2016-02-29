@@ -18,14 +18,17 @@ class CasperProtocol(Protocol):
         print "clients are ", self.clients
     def dataReceived(self, data):
         len = 4
-
+        tmp = ''
         datarec = bytearray()
         for byte in data:
 
-            if hex(ord(byte)) == '0x4':
-                print 'got stop byte'
-                break
             datarec.append(ord(byte))
+            if hex(ord(byte)) == '0xd':
+                tmp = byte
+                continue
+            if hex(ord(byte)) == '0xa' and hex(ord(tmp)) == '0xd':
+                print 'got CLRF'
+                break
         print datarec
 
 
