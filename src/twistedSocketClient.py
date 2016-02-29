@@ -4,6 +4,7 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 
 class Greeter(Protocol):
     def sendMessage(self, msg):
+        self.transport.writing-mode
         self.transport.write("MESSAGE %s\n" % msg)
 
 class GreeterFactory(Factory):
