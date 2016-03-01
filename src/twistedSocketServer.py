@@ -26,11 +26,13 @@ class CasperProtocol(Protocol):
             if hex(ord(byte)) == '0xd':
                 tmp = byte
                 continue
-            if hex(ord(byte)) == '0xa' and hex(ord(tmp)) == '0xd':
-                print 'got CLRF'
-                break
-        print datarec
-
+            if tmp != '':
+                if hex(ord(byte)) == '0xa' and hex(ord(tmp)) == '0xd':
+                    print 'got CLRF'
+                    break
+        for byte in datarec:
+            print repr(byte),' '
+            
 
 
 class SmartcarFactory(Factory):
