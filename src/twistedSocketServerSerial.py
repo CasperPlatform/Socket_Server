@@ -4,23 +4,38 @@ from twisted.internet.serialport import SerialPort
 import sys
 import serial
 
+from enum import Enum
+
+class typeFlag(Enum):
+    Drive = 'D'
+class directionFlag(Enum):
+    Forward  = 'F'
+    Backward = 'B'
+    Idle     = 'I'
+class angleFlag(Enum):
+    Right = 'R'
+    Left  = 'L'
+    Idle  = 'I'
+
 serServ = None
 
 class USBclient(Protocol):
     def connectionMade(self):
         global serServ
         serServ = self
+        #serServ.transport.write()
         print 'Arduino device: ', serServ, ' is connected.'
 
     def cmdReceived(self, cmd):
-        serServ.transport.write(cmd)
+        #serServ.transport.write(cmd)
+        for byte in cmd:
+            serServ.transport.write(chr(byte))
         #leaving all newlines for debug reasons
-        print cmd, ' - sent to Arduino.'
-        pass
+        #print cmd, ' - sent to Arduino.'
 
     def dataReceived(self,data):
         print 'USBclient.dataReceived called with:'
-        print str(data)
+        print repr(data)
 
 class CasperProtocol(Protocol):
     def __init__(self,clients):
@@ -154,6 +169,6 @@ Port = int(sys.argv[1])
 # factory.clients = []
 # factory.protocol = CasperProtocol
 reactor.listenTCP(Port,SmartcarFactory())
-SerialPort(USBclient(), '/dev/ttyAMA0', reactor, baudrate='9600')
+SerialPort(USBclient(), '/dev/cu.usbmodem1411', reactor, baudrate='9600')
 print 'server started on', Port
 reactor.run()
