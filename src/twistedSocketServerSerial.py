@@ -35,7 +35,7 @@ class USBclient(Protocol):
 
     def dataReceived(self,data):
         print 'USBclient.dataReceived called with:'
-        print repr(data)
+        print data
 
 class CasperProtocol(Protocol):
     def __init__(self,clients):
@@ -169,6 +169,6 @@ Port = int(sys.argv[1])
 # factory.clients = []
 # factory.protocol = CasperProtocol
 reactor.listenTCP(Port,SmartcarFactory())
-SerialPort(USBclient(), '/dev/cu.usbmodem1411', reactor, baudrate='9600')
+SerialPort(USBclient(), '/dev/ttyACM0', reactor, baudrate='9600')
 print 'server started on', Port
 reactor.run()
