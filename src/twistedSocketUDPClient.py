@@ -4,7 +4,7 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 
 class Greeter(DatagramProtocol):
     def startProtocol(self):
-        host = "127.0.0.1"
+        host = "192.168.10.1"
         port = 9998
 
         self.transport.connect(host, port)
@@ -13,6 +13,7 @@ class Greeter(DatagramProtocol):
 
     def datagramReceived(self, data, (host, port)):
         print "received %r from %s:%d" % (data, host, port)
+        print "%d" % len(data)
 
     # Possibly invoked if there is no server listening on the
     # address to which we are sending.

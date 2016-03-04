@@ -1,6 +1,7 @@
 from twisted.internet.protocol import Factory, DatagramProtocol
 from twisted.internet import reactor
 import sys
+
 #import leveldb
 
 # TODO: Create socket server class and protocol @Pontus
@@ -16,9 +17,22 @@ class CasperProtocol(DatagramProtocol):
         pass
 
     def datagramReceived(self, data, (host, port)):
+
+        with open("img.jpg", "rb") as imageFile:
+            f = imageFile.read()
+            b = bytearray(f)
         print "received %r from %s:%d" % (data, host, port)
 
-        self.transport.write(data, (host, port))
+        packets = ceiling(len(b)/60000)
+
+        count = 0
+
+        message 
+        for i in range(60000):
+            message.append(b[i])
+
+
+        self.transport.write(b, (host, port))
 
 class SmartcarFactory(Factory):
     def __init__(self):
