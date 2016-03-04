@@ -1,6 +1,7 @@
 from twisted.internet.protocol import Factory, DatagramProtocol
 from twisted.internet import reactor
 import sys
+import math
 
 #import leveldb
 
@@ -22,17 +23,14 @@ class CasperProtocol(DatagramProtocol):
             f = imageFile.read()
             b = bytearray(f)
         print "received %r from %s:%d" % (data, host, port)
+        
+        packetLen = 60000
+        packets = math.ceil(len(b)/packetLen)
 
-        packets = ceiling(len(b)/60000)
-
-        count = 0
-
-        message 
-        for i in range(60000):
-            message.append(b[i])
-
-
-        self.transport.write(b, (host, port))
+        for i in range(packets):
+            message = b[packetLen*i:packetLen*(i+1)]
+            self.transport.write(message, (host, port))
+        
 
 class SmartcarFactory(Factory):
     def __init__(self):
