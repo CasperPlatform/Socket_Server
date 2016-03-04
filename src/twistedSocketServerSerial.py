@@ -1,8 +1,16 @@
 from twisted.internet.protocol import Factory, Protocol
 from twisted.internet import reactor
+from twisted.internet.serialport import SerialPort
 import sys
 import serial
+#import leveldb
+
 from enum import Enum
+
+# TODO: Create socket server class and protocol @Pontus
+
+## make sure videofeed keeps a list of videofeed observers so it can update several in one go.
+
 
 class typeFlag(Enum):
     Drive = 'D'
@@ -15,10 +23,32 @@ class angleFlag(Enum):
     Left  = 'L'
     Idle  = 'I'
 
+serServ = None
+
+class USBclient(Protocol):
+    def connectionMade(self):
+        global serServ
+        serServ = self
+        #serServ.transport.write()
+        print 'Arduino device: ', serServ, ' is connected.'
+
+    def cmdReceived(self, cmd):
+        #serServ.transport.write(cmd)
+        for byte in cmd:
+            serServ.transport.write(chr(byte))
+        #leaving all newlines for debug reasons
+        #print cmd, ' - sent to Arduino.'
+
+    def dataReceived(self,data):
+        print 'USBclient.dataReceived called with:'
+        print data
+
 class CasperProtocol(Protocol):
     def __init__(self,clients):
         print 'new protocol instance'
         self.clients = clients
+        # get db instance
+        #self.level = leveldb.LevelDB('path')
 
     def connectionMade(self):
         self.clients.append(self)
@@ -29,6 +59,7 @@ class CasperProtocol(Protocol):
         print 'A client disconnected'
         print "clients are ", self.clients
     def dataReceived(self, data):
+        myArduino = USBclient()
         CR    =  ''
         LF    =  ''
         tf    = typeFlag.Drive
@@ -36,7 +67,7 @@ class CasperProtocol(Protocol):
         af    = angleFlag.Right
         speed = 0
         angle = 0
-        
+
         datarec = bytearray()
         for byte in data:
             datarec.append(ord(byte))
@@ -45,11 +76,14 @@ class CasperProtocol(Protocol):
                 continue
             if hex(ord(byte)) == '0xa':
                 LF = byte
-                continue    
+                continue
             if CR != '' and LF != '':
                 if hex(ord(byte)) == '0x4' and hex(ord(CR)) == '0xd' and hex(ord(LF)) == '0xa':
                     print 'got CL,RF,EOF'
                     break
+
+        # We no have a Message! A good starting point would be to verify the user token.
+
         if datarec[0] != ord(typeFlag.Drive):
              print repr(datarec[0])
              print 'unknown typeFlag...aborting'
@@ -100,10 +134,11 @@ class CasperProtocol(Protocol):
             print 'angle : ',angle
 
         print 'successfully parsed buffer!, sending to serial'
-
+        myArduino.cmdReceived(datarec)
         #
         # for i,byte in enumerate(datarec):
         #     print repr(byte),' '
+
 
 
 
@@ -121,5 +156,6 @@ Port = int(sys.argv[1])
 # factory.clients = []
 # factory.protocol = CasperProtocol
 reactor.listenTCP(Port,SmartcarFactory())
+SerialPort(USBclient(), '/dev/ttyACM0', reactor, baudrate='9600')
 print 'server started on', Port
 reactor.run()
