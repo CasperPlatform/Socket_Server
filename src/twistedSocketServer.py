@@ -29,22 +29,26 @@ class CasperProtocol(Protocol):
         print 'A client disconnected'
         print "clients are ", self.clients
     def dataReceived(self, data):
-        tmp = ''
-        tf   = typeFlag.Drive
-        df   = directionFlag.Forward
-        af   = angleFlag.Right
+        CR    =  ''
+        LF    =  ''
+        tf    = typeFlag.Drive
+        df    = directionFlag.Forward
+        af    = angleFlag.Right
         speed = 0
         angle = 0
-
+        
         datarec = bytearray()
         for byte in data:
             datarec.append(ord(byte))
             if hex(ord(byte)) == '0xd':
-                tmp = byte
+                CR = byte
                 continue
-            if tmp != '':
-                if hex(ord(byte)) == '0xa' and hex(ord(tmp)) == '0xd':
-                    print 'got CLRF'
+            if hex(ord(byte)) == '0xa':
+                LF = byte
+                continue    
+            if CR != '' and LF != '':
+                if hex(ord(byte)) == '0x4' and hex(ord(CR)) == '0xd' and hex(ord(LF)) == '0xa':
+                    print 'got CL,RF,EOF'
                     break
         if datarec[0] != ord(typeFlag.Drive):
              print repr(datarec[0])

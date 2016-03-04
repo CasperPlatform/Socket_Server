@@ -3,8 +3,14 @@ from twisted.internet import reactor
 from twisted.internet.serialport import SerialPort
 import sys
 import serial
+#import leveldb
 
 from enum import Enum
+
+# TODO: Create socket server class and protocol @Pontus
+
+## make sure videofeed keeps a list of videofeed observers so it can update several in one go.
+
 
 class typeFlag(Enum):
     Drive = 'D'
@@ -41,6 +47,8 @@ class CasperProtocol(Protocol):
     def __init__(self,clients):
         print 'new protocol instance'
         self.clients = clients
+        # get db instance
+        #self.level = leveldb.LevelDB('path')
 
     def connectionMade(self):
         self.clients.append(self)
@@ -51,39 +59,12 @@ class CasperProtocol(Protocol):
         print 'A client disconnected'
         print "clients are ", self.clients
     def dataReceived(self, data):
-
-
-
-
-
         myArduino = USBclient()
-        # stringit = str(data)
-        # dataToSend = stringit.strip('')
-        # #Arduino .ino needs \n to read string
-        # #derp = derp.strip('\n')
-        # # Im leaving all the newlines foe debug reasons
-        # print ">"+dataToSend+"<"
-        #
-        # # convert the data sent from Client to numbers
-        # # relateing to motor control on the Arduino
-        # if dataToSend == 'Direction:\n':
-        #     myArduino.cmdReceived("2\n")
-        # elif derp == 'Direction : Right\n':
-        #     myArduino.cmdReceived("1\n")
-        # elif derp == 'Direction : Left\n':
-        #     myArduino.cmdReceived("2\n")
-        # elif derp == 'Direction : Center\n':
-        #     myArduino.cmdReceived("0\n")
-        # else:
-        #     # in case the data dosent match send "else"
-        #     # this will be returned from arduino
-        #     myArduino.cmdReceived("else\n")
-        #     pass
-
-        tmp = ''
-        tf   = typeFlag.Drive
-        df   = directionFlag.Forward
-        af   = angleFlag.Right
+        CR    =  ''
+        LF    =  ''
+        tf    = typeFlag.Drive
+        df    = directionFlag.Forward
+        af    = angleFlag.Right
         speed = 0
         angle = 0
 
@@ -91,12 +72,18 @@ class CasperProtocol(Protocol):
         for byte in data:
             datarec.append(ord(byte))
             if hex(ord(byte)) == '0xd':
-                tmp = byte
+                CR = byte
                 continue
-            if tmp != '':
-                if hex(ord(byte)) == '0xa' and hex(ord(tmp)) == '0xd':
-                    print 'got CLRF'
+            if hex(ord(byte)) == '0xa':
+                LF = byte
+                continue
+            if CR != '' and LF != '':
+                if hex(ord(byte)) == '0x4' and hex(ord(CR)) == '0xd' and hex(ord(LF)) == '0xa':
+                    print 'got CL,RF,EOF'
                     break
+
+        # We no have a Message! A good starting point would be to verify the user token.
+
         if datarec[0] != ord(typeFlag.Drive):
              print repr(datarec[0])
              print 'unknown typeFlag...aborting'
