@@ -36,7 +36,7 @@ class CasperProtocol(DatagramProtocol):
             packetLen = 512
             packets = int(math.ceil(len(b)/512.0))
 
-            message = "V" + str(packets)
+            message = "V" + str(packets) + str(len(b))
             print message
             self.transport.write(message, (host, port))
             print "%f, %d" % (len(b)/512.0, packets)
