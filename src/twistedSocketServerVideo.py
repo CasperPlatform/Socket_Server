@@ -61,22 +61,25 @@ class CasperProtocol(DatagramProtocol):
             camera.framerate = 40
             time.sleep(2)
 
-            while True:
-
-                if self.connected == False:
-                    break
-
+            while self.connected == true:
                 start = time.time()
                 camera.capture_sequence(self.outputs(data, (host, port)), 'jpeg', use_video_port=True)
                 finish = time.time()
                 print('Captured 20 images at %.2ffps' % (20 / (finish - start)))
-
+    
+    def connectionLost(self, reason):
+        self.clients.remove(self)
+        print 'A client disconnected'
+        print "clients are ", self.clients
+        self.connected = false           
 
 
 
 class SmartcarFactory(Factory):
     def __init__(self):
         print 'initing'
+        self.tokens={}
+        self.clients = []
 
     def buildProtocol(self, addr):
         return CasperProtocol(self.clients)
