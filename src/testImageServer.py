@@ -26,6 +26,7 @@ class CasperProtocol(DatagramProtocol):
         pass
 
     def datagramReceived(self, data, (host, port)):
+        imageNumber = 283928391
 
         with open("img.jpg", "rb") as imageFile:
             f = imageFile.read()
@@ -35,12 +36,36 @@ class CasperProtocol(DatagramProtocol):
         packetLen = 8000
         packets = int(math.ceil(len(b)/8000.0))
 
-        message = "V" + str(packets) + str(len(b))
+        message = bytearray()
+        message.append(0x01)
+        message.append('V')
+
+        message.append((imageNumber>>24) & 0xff)
+        message.append((imageNumber>>16) & 0xff)
+        message.append((imageNumber>>8) & 0xff)
+        message.append(imageNumber & 0xff)
+
+        message.append(packets)
+
+        length = len(b)
+        message.append((length>>24) & 0xff)
+        message.append((length>>16) & 0xff)
+        message.append((length>>8) & 0xff)
+        message.append(length & 0xff)
         print message
         self.transport.write(message, (host, port))
 
         for i in range(0, packets):
+            
+            message = bytearray()
+            message.append(0x02)
 
+            message.append((imageNumber>>24) & 0xff)
+            message.append((imageNumber>>16) & 0xff)
+            message.append((imageNumber>>8) & 0xff)
+            message.append(imageNumber & 0xff)
+
+            message.append(i)
             if i==packets-1:
                 message = b[packetLen*i:]
                 self.transport.write(message, (host, port))
