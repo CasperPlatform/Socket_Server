@@ -52,6 +52,12 @@ class CasperProtocol(DatagramProtocol):
             message = bytearray()
             message.append(0x01)
             message.append('V')
+
+            message.append((imageNumber>>24) & 0xff)
+            message.append((imageNumber>>16) & 0xff)
+            message.append((imageNumber>>8) & 0xff)
+            message.append(imageNumber & 0xff)
+
             message.append(packets)
 
             length = len(b)
@@ -66,8 +72,7 @@ class CasperProtocol(DatagramProtocol):
             for i in range(0, packets):
 
                 message = bytearray()
-                message.append(0x01)
-
+                message.append(0x02)
 
                 message.append((imageNumber>>24) & 0xff)
                 message.append((imageNumber>>16) & 0xff)
