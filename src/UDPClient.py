@@ -7,8 +7,8 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 class Greeter(DatagramProtocol):
 
     def startProtocol(self):
-        host = "192.168.1.186"
-        port = 9998
+        host = "192.168.10.1"
+        port = 6000
 
         self.count = 0
         self.b = bytearray()
@@ -24,7 +24,7 @@ class Greeter(DatagramProtocol):
 
         if self.count == 0:
 
-            for i in range(1, 4):
+            for i in range(1, 3):
                 self.length += data[i]
             self.packets = int(self.length)
 
