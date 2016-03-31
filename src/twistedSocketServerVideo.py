@@ -25,34 +25,34 @@ class CasperProtocol(DatagramProtocol):
         self.connected = False
         pass
     def outputs(self, data, (host, port)):
-        stream = io.BytesIO()
-        for i in range(20):
-            # This returns the stream for the camera to capture to
-            yield stream
+          stream = io.BytesIO()
+          for i in range(20):
+              # This returns the stream for the camera to capture to
+              yield stream
 
-            stream.seek(0)
-            b = stream.read()
+              stream.seek(0)
+              b = stream.read()
 
-            packetLen = 512
-            packets = int(math.ceil(len(b)/512.0))
+              packetLen = 512
+              packets = int(math.ceil(len(b)/512.0))
 
-            message = "V" + str(packets) + str(len(b))
-            print message
-            self.transport.write(message, (host, port))
-            print "%f, %d" % (len(b)/512.0, packets)
+              message = "V" + str(packets) + str(len(b))
+              print message
+              self.transport.write(message, (host, port))
+              print "%f, %d" % (len(b)/512.0, packets)
 
-            for i in range(0, packets):
+              for i in range(0, packets):
 
-                if i==packets-1:
-                    message = b[packetLen*i:]
-                    self.transport.write(message, (host, port))
+                  if i==packets-1:
+                      message = b[packetLen*i:]
+                      self.transport.write(message, (host, port))
 
-                else:
-                    message = b[packetLen*i:packetLen*(i+1)]
-                    self.transport.write(message, (host, port))
+                  else:
+                      message = b[packetLen*i:packetLen*(i+1)]
+                      self.transport.write(message, (host, port))
 
-            stream.seek(0)
-            stream.truncate()
+              stream.seek(0)
+              stream.truncate()
 
     def datagramReceived(self, data, (host, port)):
 
@@ -61,17 +61,22 @@ class CasperProtocol(DatagramProtocol):
             camera.framerate = 40
             time.sleep(2)
 
-            while self.connected == true:
+            while True:
+
+                if self.connected == False:
+                    print 'stopped'
+                    break
+
                 start = time.time()
                 camera.capture_sequence(self.outputs(data, (host, port)), 'jpeg', use_video_port=True)
                 finish = time.time()
                 print('Captured 20 images at %.2ffps' % (20 / (finish - start)))
-    
+
     def connectionLost(self, reason):
         self.clients.remove(self)
         print 'A client disconnected'
         print "clients are ", self.clients
-        self.connected = false           
+        self.connected = false
 
 
 

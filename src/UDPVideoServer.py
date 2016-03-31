@@ -22,45 +22,64 @@ class CasperProtocol(DatagramProtocol):
         self.connected = True
 
     def outputs(self, data, (host, port)):
-        stream = io.BytesIO()
-        for i in range(10):
-            # This returns the stream for the camera to capture to
-            yield stream
+          stream = io.BytesIO()
+          for i in range(20):
+              # This returns the stream for the camera to capture to
+              yield stream
 
-            stream.seek(0)
-            b = stream.read()
+              stream.seek(0)
+              b = stream.read()
 
-            packetLen = 8000
-            packets = int(math.ceil(len(b)/8000.0))
+              packetLen = 512
+              packets = int(math.ceil(len(b)/512.0))
 
-            message = "V" + str(packets) + str(len(b))
-            print message
-            self.transport.write(message, (host, port))
-            print "%f, %d" % (len(b)/8000.0, packets)
+              message = "V" + str(packets) + str(len(b))
+              print message
+              self.transport.write(message, (host, port))
+              print "%f, %d" % (len(b)/512.0, packets)
 
-            for i in range(0, packets):
+              for i in range(0, packets):
 
-                if i==packets-1:
-                    message = b[packetLen*i:]
-                    self.transport.write(message, (host, port))
+                  if i==packets-1:
+                      message = b[packetLen*i:]
+                      self.transport.write(message, (host, port))
 
-                else:
-                    message = b[packetLen*i:packetLen*(i+1)]
-                    self.transport.write(message, (host, port))
+                  else:
+                      message = b[packetLen*i:packetLen*(i+1)]
+                      self.transport.write(message, (host, port))
 
-            stream.seek(0)
-            stream.truncate()
+              stream.seek(0)
+              stream.truncate()
 
     def datagramReceived(self, data, (host, port)):
 
         with picamera.PiCamera() as camera:
             camera.resolution = (640, 480)
-            camera.framerate = 10
+            camera.framerate = 40
             time.sleep(2)
-            start = time.time()
-            camera.capture_sequence(self.outputs(data, (host, port)), 'jpeg', use_video_port=True)
-            finish = time.time()
-            print('Captured 10 images at %.2ffps' % (10 / (finish - start)))
+
+            while True:
+
+                if self.connected == False:
+                    print 'stopped'
+                    break
+                else:
+
+                    start = time.time()
+                    try:
+                        camera.capture_sequence(self.outputs(data, (host, port)), 'jpeg', use_video_port=True)
+                    except Exception as e:
+                        self.connected = False
+                        print 'bajs'
+                        break
+                    finish = time.time()
+                    print('Captured 20 images at %.2ffps' % (20 / (finish - start)))
+
+    def connectionLost(self):
+        self.connected = False
+    def stopProtocol(self):
+        self.connected = False
+
 
 class SmartcarFactory(Factory):
     def __init__(self):

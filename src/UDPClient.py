@@ -24,7 +24,7 @@ class Greeter(DatagramProtocol):
 
         if self.count == 0:
 
-            for i in range(1, 3):
+            for i in range(1, 4):
                 self.length += data[i]
             self.packets = int(self.length)
 
