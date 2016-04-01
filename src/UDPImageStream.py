@@ -89,6 +89,7 @@ class CasperProtocol(DatagramProtocol):
                     message.extend(b[packetLen*i:packetLen*(i+1)])
                     self.transport.write(message, (host, port))
                 print 'packet ' + str(i) + ' sent.'
+                time.sleep(0.02)
 
 class SmartcarFactory(Factory):
     def __init__(self):

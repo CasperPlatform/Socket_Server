@@ -7,7 +7,7 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 class Greeter(DatagramProtocol):
 
     def startProtocol(self):
-        host = "192.168.10.1"
+        host = "127.0.0.1"
         port = 6000
 
         self.count = 0
@@ -34,7 +34,7 @@ class Greeter(DatagramProtocol):
         else:
             self.b += data[6:]
 
-            if self.count == self.packets+1:
+            if self.count == self.packets:
 
                 with open('test.jpg', 'wb') as output:
                     output.write(self.b)
@@ -47,10 +47,6 @@ class Greeter(DatagramProtocol):
             else:
 
                 self.count += 1
-
-
-
-
 
     # Possibly invoked if there is no server listening on the
     # address to which we are sending.
