@@ -75,7 +75,7 @@ class CasperProtocol(DatagramProtocol):
                       message.extend(b[packetLen*i:packetLen*(i+1)])
                       self.transport.write(message, (host, port))
                   #print 'packet ' + str(i) + ' sent.'
-                  time.sleep(0.001)
+                  time.sleep(0.002)
 
               stream.seek(0)
               stream.truncate()

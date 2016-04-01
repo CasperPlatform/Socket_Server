@@ -29,13 +29,11 @@ class Greeter(DatagramProtocol):
             self.packets = ord(data[6])
 
             print self.packets
-            self.count += 1
-
         else:
+
             self.b += data[6:]
 
-            if self.count == self.packets:
-
+            if not self.count < self.packets:
                 with open('test.jpg', 'wb') as output:
                     output.write(self.b)
 
@@ -44,8 +42,9 @@ class Greeter(DatagramProtocol):
                 self.length = ''
                 self.packets = 0
 
-            else:
+                print 'Image recieved'
 
+            else:
                 self.count += 1
 
     # Possibly invoked if there is no server listening on the
