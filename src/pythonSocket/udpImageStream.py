@@ -4,8 +4,7 @@ import threading
 import math
 import io
 import time
-
-continueSending = False
+import picamera
 
 def listen():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -32,15 +31,22 @@ def listen():
 
         #else:
             #continueSending = False
-
 def sendImage(sock, data, address):
+
     imageNumber = 0
     global continueSending
 
-    #while continueSending:
-    with open("img.jpg", "rb") as imageFile:
-        f = imageFile.read()
-        b = bytearray(f)
+    with picamera.PiCamera() as camera:
+        imageNumber = 283928391
+        stream = io.BytesIO()
+        camera.start_preview()
+        # Camera warm-up time
+        time.sleep(2)
+        camera.capture(stream, 'jpeg')
+        print "received %r." % (data)
+
+        stream.seek(0)
+        b = stream.read()
 
     packetLen = 8000
     packets = int(math.ceil(len(b)/8000.0))
@@ -87,7 +93,7 @@ def sendImage(sock, data, address):
         #print 'packet ' + str(i) + ' sent.'
         #imageNumber += 1
         #print 'Sent image number: ' + str(imageNumber)
-        time.sleep(0.002)
-
+        #time.sleep(0.002)
+        
 if __name__ == '__main__':
     listen()

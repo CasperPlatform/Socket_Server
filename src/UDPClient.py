@@ -7,7 +7,7 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 class Greeter(DatagramProtocol):
 
     def startProtocol(self):
-        host = "127.0.0.1"
+        host = "192.168.10.1"
         port = 6000
 
         self.count = 0
@@ -23,14 +23,14 @@ class Greeter(DatagramProtocol):
         #print "received %r from %s:%d" % (data, host, port)
 
         if self.count == 0:
-            print data
+            #print data
             self.count += 1
 
             self.packets = ord(data[6])
 
-            print self.packets
+            #print self.packets
         else:
-
+            #print ord(data[5])
             self.b += data[6:]
 
             if not self.count < self.packets:
