@@ -68,11 +68,11 @@ class CasperProtocol(DatagramProtocol):
 
                 message.append(i)
                 if i==packets-1:
-                    message = b[packetLen*i:]
+                    message.extend(b[packetLen*i:])
                     self.transport.write(message, (host, port))
 
                 else:
-                    message = b[packetLen*i:packetLen*(i+1)]
+                    message.extend(b[packetLen*i:packetLen*(i+1)])
                     self.transport.write(message, (host, port))
                 print 'packet ' + str(i) + ' sent.'
             imageNumber += 1
