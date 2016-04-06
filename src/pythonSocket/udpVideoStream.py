@@ -5,6 +5,8 @@ import math
 import io
 import time
 import picamera
+import sqlite3
+import datetime
 
 def listen():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -23,16 +25,48 @@ def listen():
         print >>sys.stderr, 'received %s bytes from %s' % (len(data), address)
         print >>sys.stderr, data
 
-        if not continueSending:
-            continueSending = True
+        if data:
+            readMessage(data, sock, address)
 
-            thr = threading.Thread(target=startVideo, args=(sock, data, address), kwargs={})
-            thr.start() # will run "foo"
+def readMessage(message, sock, address):
+    global continueSending
 
-        else:
-            continueSending = False
+    if not message[0] == 0x01:
+        return
 
-def outputs(sock, data, address):
+    token = message[1:17]
+
+    conn = sqlite3.connect('../../../db.db', detect_types=sqlite3.PARSE_DECLTYPES)
+    c = conn.cursor()
+
+    c.execute("select userId from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
+
+    row = c.fetchone()
+    if row is None:
+        print 'No token found.'
+
+    c.execute("update tokens set expiration=? where userId=?", (datetime.datetime.now() + datetime.timedelta(minutes = 25), row[0]))
+    conn.commit()
+
+    flag = message[17]
+
+    if flag == 'S':
+        continueSending = True
+
+        thr1 = threading.Thread(target=startVideo, args=(sock, address), kwargs={})
+        thr1.start()
+
+        thr2 = threading.Thread(target=videoTimer, args=(), kwargs={})
+        thr2.start()
+
+    if flag == 's':
+        continueSending = False
+        timer = 0
+
+    if flag == 'I':
+        timer = 0
+
+def outputs(sock, address):
       stream = io.BytesIO()
 
       global continueSending
@@ -97,7 +131,7 @@ def outputs(sock, data, address):
           stream.seek(0)
           stream.truncate()
 
-def startVideo(sock, data, address):
+def startVideo(sock, address):
 
     global imageNumber
     imageNumber = 0
@@ -112,11 +146,18 @@ def startVideo(sock, data, address):
 
             start = time.time()
 
-            camera.capture_sequence(outputs(sock, data, address), 'jpeg', use_video_port=True)
+            camera.capture_sequence(outputs(sock, address), 'jpeg', use_video_port=True)
 
             finish = time.time()
             print('Captured 20 images at %.2ffps' % (20 / (finish - start)))
 
+def videoTimer():
+    global timer
+    timer = 0
+    while timer < 10:
+        timer += 1
+        time.sleep(1)
+    continueSending = False
 
 if __name__ == '__main__':
     listen()
