@@ -23,27 +23,33 @@ def listen():
         data, address = sock.recvfrom(4096)
 
         print >>sys.stderr, 'received %s bytes from %s' % (len(data), address)
-        print >>sys.stderr, data
+        print >>sys.stderr, repr(data)
 
         if data:
             readMessage(data, sock, address)
 
 def readMessage(message, sock, address):
     global continueSending
+    global timer
 
-    if not message[0] == 0x01:
+    print ord(message[0])
+    if not ord(message[0]) == 0x01:
+        print 'Wrong message header.'
         return
 
     token = message[1:17]
 
-    conn = sqlite3.connect('../../../db.db', detect_types=sqlite3.PARSE_DECLTYPES)
+    conn = sqlite3.connect('../../db.db', detect_types=sqlite3.PARSE_DECLTYPES)
     c = conn.cursor()
 
     c.execute("select userId from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
+    #c.execute("select * from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
 
     row = c.fetchone()
+    print row
     if row is None:
         print 'No token found.'
+        return
 
     c.execute("update tokens set expiration=? where userId=?", (datetime.datetime.now() + datetime.timedelta(minutes = 25), row[0]))
     conn.commit()
@@ -59,12 +65,16 @@ def readMessage(message, sock, address):
         thr2 = threading.Thread(target=videoTimer, args=(), kwargs={})
         thr2.start()
 
+        print 'Start Sending Video.'
+
     if flag == 's':
         continueSending = False
         timer = 0
+        print 'Stop Sending Video.'
 
     if flag == 'I':
         timer = 0
+        print 'Recieved Idle Update.'
 
 def outputs(sock, address):
       stream = io.BytesIO()
@@ -153,10 +163,12 @@ def startVideo(sock, address):
 
 def videoTimer():
     global timer
+    global continueSending
     timer = 0
     while timer < 10:
         timer += 1
         time.sleep(1)
+
     continueSending = False
 
 if __name__ == '__main__':

@@ -20,10 +20,10 @@ class Greeter(DatagramProtocol):
         message = bytearray()
 
         message.append(0x01)
-        message.extend('2dd1a34ccc12c65a')
-        messaged.append('S')
+        message.extend('5ec7d116c45aeec0')
+        message.append('s')
 
-        self.transport.write("hello") # no need for address
+        self.transport.write(message) # no need for address
 
     def datagramReceived(self, data, (host, port)):
         #print "received %r from %s:%d" % (data, host, port)
