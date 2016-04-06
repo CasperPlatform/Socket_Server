@@ -104,7 +104,7 @@ def startVideo(sock, data, address):
     global continueSending
 
     with picamera.PiCamera() as camera:
-        camera.resolution = (300, 200)
+        camera.resolution = (334, 188)
         camera.framerate = 40
         time.sleep(2)
 
@@ -116,7 +116,6 @@ def startVideo(sock, data, address):
 
             finish = time.time()
             print('Captured 20 images at %.2ffps' % (20 / (finish - start)))
-
 
 if __name__ == '__main__':
     listen()
