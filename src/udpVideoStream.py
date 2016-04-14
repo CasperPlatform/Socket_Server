@@ -148,7 +148,7 @@ def startVideo(sock, address):
     global continueSending
 
     with picamera.PiCamera() as camera:
-        camera.resolution = (300, 200)
+        camera.resolution = (150, 100)
         camera.framerate = 40
         time.sleep(2)
 
