@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from twisted.internet.protocol import Factory, Protocol
 from twisted.internet import reactor
 from twisted.internet.serialport import SerialPort
