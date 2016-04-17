@@ -39,7 +39,7 @@ def readMessage(message, sock, address):
 
     token = message[1:17]
 
-    conn = sqlite3.connect('../../db.db', detect_types=sqlite3.PARSE_DECLTYPES)
+    conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
     c = conn.cursor()
 
     c.execute("select userId from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
