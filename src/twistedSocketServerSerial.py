@@ -94,27 +94,45 @@ class CasperProtocol(Protocol):
             tf = typeFlag.Drive
             print 'this is a driveMsg'
 
-        if datarec[1] == ord(directionFlag.Forward) or datarec[1] == ord(directionFlag.Backward) or datarec[1] == ord(directionFlag.Idle):
-            if datarec[1] == ord(directionFlag.Forward):
+
+        token = message[1:17]
+
+        conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
+        c = conn.cursor()
+
+        c.execute("select userId from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
+
+        row = c.fetchone()
+        print row
+        if row is None:
+            print 'No token found.'
+            return
+
+        c.execute("update tokens set expiration=? where userId=?", (datetime.datetime.now() + datetime.timedelta(minutes = 25), row[0]))
+        conn.commit()
+
+
+        if datarec[17] == ord(directionFlag.Forward) or datarec[1] == ord(directionFlag.Backward) or datarec[1] == ord(directionFlag.Idle):
+            if datarec[17] == ord(directionFlag.Forward):
                 print 'direction: Forward'
                 df = directionFlag.Forward
-            if datarec[1] == ord(directionFlag.Backward):
+            if datarec[17] == ord(directionFlag.Backward):
                 print 'direction: Back'
                 df = directionFlag.Backward
-            if datarec[1] == ord(directionFlag.Idle):
+            if datarec[17] == ord(directionFlag.Idle):
                 print 'direction: Idle'
                 df = directionFlag.Idle
         else:
             print 'unknown DirectionFlag..aborting'
             return
-        if datarec[2] == ord(angleFlag.Right) or datarec[2] == ord(angleFlag.Left) or datarec[2] == ord(angleFlag.Idle):
-            if datarec[2] == ord(angleFlag.Right):
+        if datarec[18] == ord(angleFlag.Right) or datarec[2] == ord(angleFlag.Left) or datarec[2] == ord(angleFlag.Idle):
+            if datarec[18] == ord(angleFlag.Right):
                 print 'angle: Right'
                 df = angleFlag.Right
-            if datarec[2] == ord(angleFlag.Left):
+            if datarec[18] == ord(angleFlag.Left):
                 print 'angle: Left'
                 df = angleFlag.Left
-            if datarec[2] == ord(angleFlag.Idle):
+            if datarec[18] == ord(angleFlag.Idle):
                 print 'angle: Idle'
                 df = angleFlag.Idle
         else:
@@ -122,17 +140,17 @@ class CasperProtocol(Protocol):
             for i,byte in enumerate(datarec):
                 print repr(byte),' '
             return
-        if datarec[3] < 0 or datarec[3] > 255:
+        if datarec[19] < 0 or datarec[3] > 255:
             print 'invalid Speed Value, aborting...'
             return
         else:
-            speed = datarec[3]
+            speed = datarec[19]
             print 'speed : ',speed
-        if datarec[4] < 0 or datarec[4] > 90:
+        if datarec[20] < 0 or datarec[4] > 90:
             print 'invalid Angle Value, aborting...'
             return
         else:
-            angle = datarec[4]
+            angle = datarec[20]
             print 'angle : ',angle
 
         print 'successfully parsed buffer!, sending to serial'
