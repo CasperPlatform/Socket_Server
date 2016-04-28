@@ -112,7 +112,7 @@ class CasperProtocol(Protocol):
         conn.commit()
 
 
-        if datarec[17] == ord(directionFlag.Forward) or datarec[1] == ord(directionFlag.Backward) or datarec[1] == ord(directionFlag.Idle):
+        if datarec[17] == ord(directionFlag.Forward) or datarec[17] == ord(directionFlag.Backward) or datarec[17] == ord(directionFlag.Idle):
             if datarec[17] == ord(directionFlag.Forward):
                 print 'direction: Forward'
                 df = directionFlag.Forward
@@ -125,7 +125,7 @@ class CasperProtocol(Protocol):
         else:
             print 'unknown DirectionFlag..aborting'
             return
-        if datarec[18] == ord(angleFlag.Right) or datarec[2] == ord(angleFlag.Left) or datarec[2] == ord(angleFlag.Idle):
+        if datarec[18] == ord(angleFlag.Right) or datarec[18] == ord(angleFlag.Left) or datarec[18] == ord(angleFlag.Idle):
             if datarec[18] == ord(angleFlag.Right):
                 print 'angle: Right'
                 df = angleFlag.Right
@@ -140,13 +140,13 @@ class CasperProtocol(Protocol):
             for i,byte in enumerate(datarec):
                 print repr(byte),' '
             return
-        if datarec[19] < 0 or datarec[3] > 255:
+        if datarec[19] < 0 or datarec[19] > 255:
             print 'invalid Speed Value, aborting...'
             return
         else:
             speed = datarec[19]
             print 'speed : ',speed
-        if datarec[20] < 0 or datarec[4] > 90:
+        if datarec[20] < 0 or datarec[20] > 90:
             print 'invalid Angle Value, aborting...'
             return
         else:
@@ -154,7 +154,7 @@ class CasperProtocol(Protocol):
             print 'angle : ',angle
 
         print 'successfully parsed buffer!, sending to serial'
-        myArduino.cmdReceived(datarec)
+        myArduino.cmdReceived(datarec[0] + datarec[17:21])
         #
         # for i,byte in enumerate(datarec):
         #     print repr(byte),' '
