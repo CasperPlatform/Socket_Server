@@ -3,8 +3,11 @@
 from twisted.internet.protocol import Factory, Protocol
 from twisted.internet import reactor
 from twisted.internet.serialport import SerialPort
+
 import sys
 import serial
+import sqlite3
+import datetime
 #import leveldb
 
 from enum import Enum
@@ -95,7 +98,9 @@ class CasperProtocol(Protocol):
             print 'this is a driveMsg'
 
 
-        token = message[1:17]
+        token = str(datarec[1:17])
+
+        print repr(token)
 
         conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
         c = conn.cursor()
@@ -154,7 +159,12 @@ class CasperProtocol(Protocol):
             print 'angle : ',angle
 
         print 'successfully parsed buffer!, sending to serial'
-        myArduino.cmdReceived(datarec[0] + datarec[17:21])
+
+        message = bytearray()
+        message.append(datarec[0])
+        message.extend(datarec[17:24])
+        print repr(message)
+        myArduino.cmdReceived(message)
         #
         # for i,byte in enumerate(datarec):
         #     print repr(byte),' '
