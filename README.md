@@ -20,7 +20,7 @@ will start a Video Server listening on port 9998, some port ranges will require 
 
 ### drive protocol
 
-- syntax : `[operation_flag],[direction_flag],[angle_flag],[speed],[angle],[CR],[LF]`
+- syntax : `[token],[operation_flag],[direction_flag],[angle_flag],[speed],[angle],[CR],[LF]`
 
 - Use unsinged 8-bit integers
 - Operation flag: `for drive : 'D' hex: 0x44`
@@ -33,7 +33,7 @@ will start a Video Server listening on port 9998, some port ranges will require 
 
 ### video stream protocol
 
-- syntax : `[video_flag], [packet amount]`
+- syntax : `[token], [video_flag], [packet amount]`
 
 - Use unsinged 8-bit integers
 
