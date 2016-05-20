@@ -38,23 +38,24 @@ def readMessage(message, sock, address):
     if not ord(message[0]) == 0x01:
         print 'Wrong message header.'
         return
+    
+    
+    #token = message[1:17]
 
-    token = message[1:17]
+    #conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
+    #c = conn.cursor()
 
-    conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
-    c = conn.cursor()
-
-    c.execute("select userId from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
+    #c.execute("select userId from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
     #c.execute("select * from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
 
-    row = c.fetchone()
-    print row
-    if row is None:
-        print 'No token found.'
-        return
+    #row = c.fetchone()
+    #print row
+    #if row is None:
+     #   print 'No token found.'
+     #   return
 
-    c.execute("update tokens set expiration=? where userId=?", (datetime.datetime.now() + datetime.timedelta(minutes = 25), row[0]))
-    conn.commit()
+    #c.execute("update tokens set expiration=? where userId=?", (datetime.datetime.now() + datetime.timedelta(minutes = 25), row[0]))
+    #conn.commit()
 
     flag = message[17]
 
