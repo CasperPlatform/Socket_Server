@@ -12,9 +12,8 @@ import datetime
 
 from enum import Enum
 
-# TODO: Create socket server class and protocol @Pontus
 
-## make sure videofeed keeps a list of videofeed observers so it can update several in one go.
+## make sure videofeed keeps a list of videofeed observers so it can update several in one
 
 
 class typeFlag(Enum):
@@ -49,9 +48,13 @@ class USBclient(Protocol):
         print data
 
 class CasperProtocol(Protocol):
+
+    localToken = None
+
     def __init__(self,clients):
         print 'new protocol instance'
         self.clients = clients
+        self.localToken = (None,datetime.datetime.now)
         # get db instance
         #self.level = leveldb.LevelDB('path')
 
@@ -101,20 +104,24 @@ class CasperProtocol(Protocol):
         token = str(datarec[1:17])
 
         print repr(token)
+        print repr(self.localToken)
 
-        conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
-        c = conn.cursor()
+        if token !=  self.localToken[0] or  self.localToken[1] - datetime.datetime.now() < datetime.timedelta(minutes = 5):
+            print "Open DB"
+            conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
+            c = conn.cursor()
+            c.execute("select token, expiration from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
 
-        c.execute("select userId from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
+            row = c.fetchone()
+            print row
+            if row is None:
+                print 'No token found.'
+                return
+            else:
+                self.localToken = row
 
-        row = c.fetchone()
-        print row
-        if row is None:
-            print 'No token found.'
-            return
-
-        c.execute("update tokens set expiration=? where userId=?", (datetime.datetime.now() + datetime.timedelta(minutes = 25), row[0]))
-        conn.commit()
+            c.execute("update tokens set expiration=? where userId=?", (datetime.datetime.now() + datetime.timedelta(minutes = 25), row[0]))
+            conn.commit()
 
 
         if datarec[17] == ord(directionFlag.Forward) or datarec[17] == ord(directionFlag.Backward) or datarec[17] == ord(directionFlag.Idle):
