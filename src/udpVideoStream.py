@@ -34,7 +34,7 @@ def readMessage(message, sock, address):
     global continueSending
     global timer
 
-    if len(message) < 19:
+    if len(message) < 18:
         print("Wrong length")
         return
     print ord(message[0])
