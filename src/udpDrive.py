@@ -2,7 +2,6 @@
 import socket
 import sys
 import serial
-import threading
 import math
 import io
 import time
@@ -22,7 +21,7 @@ class angleFlag(Enum):
     Left  = 'L'
     Idle  = 'I'
 
-localToken = None
+localToken = (None, None)
 
 def listen():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -44,14 +43,15 @@ def listen():
             readMessage(data, sock, address)
 
 def sendCmd(cmd):
-    global port
-    ser = serial.Serial(port, 9600)
+    sPort = '/dev/ttyACM0'
+    ser = serial.Serial(sPort, 9600)
 
     for byte in cmd:
         ser.write(chr(byte))
 
 
 def readMessage(message, sock, address):
+    global localToken
 
     print ord(message[0])
     if not ord(message[0]) == 0x01:
@@ -60,7 +60,7 @@ def readMessage(message, sock, address):
 
     token = message[1:17]
 
-    if token !=  self.localToken[0] or  self.localToken[1] - datetime.datetime.now() < datetime.timedelta(minutes = 5):
+    if token !=  localToken[0] or  localToken[1] - datetime.datetime.now() < datetime.timedelta(minutes = 5):
         print "Open DB"
         conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
         c = conn.cursor()
@@ -159,3 +159,6 @@ def readMessage(message, sock, address):
     cmd.extend(message[17:24])
     print repr(cmd)
     sendCmd(cmd)
+
+if __name__ == '__main__':
+    listen()
