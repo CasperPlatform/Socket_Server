@@ -19,10 +19,14 @@ class Greeter(DatagramProtocol):
         print "now we can only send to host %s port %d" % (host, port)
         message = bytearray()
 
-        message.append(0x01)
-        message.extend('2f8d2b5035e7e10d')
-        message.append('S')
         
+        message.append('L')
+        message.append('S')
+        message.extend('2f8d2b5035e7e10d')
+        message.append(0x0a)
+        message.append(0x0d)
+        message.append(0x04)
+
         self.transport.write(message) # no need for address
 
     def datagramReceived(self, data, (host, port)):
