@@ -116,7 +116,7 @@ class CasperProtocol(Protocol):
             print row
             if row is None:
                 print 'No token found.'
-                return
+                #return
             else:
                 self.localToken = row
 
