@@ -106,7 +106,7 @@ class CasperProtocol(Protocol):
         print repr(token)
         print repr(self.localToken)
 
-        if False and token !=  self.localToken[0] or  self.localToken[1] - datetime.datetime.now() < datetime.timedelta(minutes = 5):
+        if False: #and token !=  self.localToken[0] or  self.localToken[1] - datetime.datetime.now() < datetime.timedelta(minutes = 5):
             print "Open DB"
             conn = sqlite3.connect('/home/pi/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
             c = conn.cursor()
