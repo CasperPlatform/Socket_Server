@@ -108,7 +108,7 @@ class CasperProtocol(Protocol):
 
         if token !=  self.localToken[0] or  self.localToken[1] - datetime.datetime.now() < datetime.timedelta(minutes = 5):
             print "Open DB"
-            conn = sqlite3.connect('/home/pi/CASPER/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
+            conn = sqlite3.connect('/home/pi/db.db', detect_types=sqlite3.PARSE_DECLTYPES)
             c = conn.cursor()
             c.execute("select token, expiration from tokens where token=? and expiration>?", (token, datetime.datetime.now()))
 
@@ -116,7 +116,7 @@ class CasperProtocol(Protocol):
             print row
             if row is None:
                 print 'No token found.'
-                #return
+                return
             else:
                 self.localToken = row
 
@@ -196,3 +196,4 @@ reactor.listenTCP(Port,SmartcarFactory())
 SerialPort(USBclient(), '/dev/ttyACM0', reactor, baudrate='9600')
 print 'server started on', Port
 reactor.run()
+
