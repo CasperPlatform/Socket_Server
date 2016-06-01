@@ -6,7 +6,7 @@ import sqlite3
 import datetime
 import serial
 import math
-import enum
+from enum import Enum
 
 class directionFlag(Enum):
     Forward  = 'F'
@@ -59,10 +59,12 @@ def readMessage(message, sock, address):
     #conn.commit()
 
     flag = message[17]
-    global direction
+    global direction 
     
     if flag == 'S':
         continueSending = True
+
+        direction = directionFlag.Idle
 
         thr1 = threading.Thread(target=startMeasure, args=(sock, address), kwargs={})
         thr1.start()
@@ -100,16 +102,43 @@ def startMeasure(sock, address):
         message.append(0x01)
         message.append('L')
         
-        for i in range (0, 360):
-            point = addPoint(i, 500)
+        global direction
+        if direction == directionFlag.Forward:
             
-            message.append((point[0]>>8) & 0xff)
-            message.append(point[0] & 0xff)
-            
-            message.append((point[1]>>8) & 0xff)
-            message.append(point[1] & 0xff)
-            
+            for i in range (0, 90):
+                angle = i-45
+                if angle < 0:
+                    angle = 360 - angle
+                    
+                point = addPoint(angle, 500)
+                
+                message.append((point[0]>>8) & 0xff)
+                message.append(point[0] & 0xff)
+                
+                message.append((point[1]>>8) & 0xff)
+                message.append(point[1] & 0xff)
+        elif direction == directionFlag.Backward:
         
+            for i in range (135, 225):
+                   
+                point = addPoint(angle, 500)
+                
+                message.append((point[0]>>8) & 0xff)
+                message.append(point[0] & 0xff)
+                
+                message.append((point[1]>>8) & 0xff)
+                message.append(point[1] & 0xff)
+        elif direction == directionFlag.Idle:
+            for i in range (0, 360):
+                   
+                point = addPoint(angle, 500)
+                
+                message.append((point[0]>>8) & 0xff)
+                message.append(point[0] & 0xff)
+                
+                message.append((point[1]>>8) & 0xff)
+                message.append(point[1] & 0xff)
+                
         sock.sendto(message, address)
         time.sleep(1)
         
