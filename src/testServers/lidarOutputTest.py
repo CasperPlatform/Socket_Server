@@ -1,35 +1,44 @@
 import serial
 import svgwrite
-
+import time
+import math
 
 def svgTest():
     #dwg = svgwrite.Drawing('test.svg', profile='tiny')
     #dwg.add(dwg.line((0, 0), (100, 100), stroke=svgwrite.rgb(10, 10, 16, '%')))
     #dwg.add(dwg.text('Test', insert=(0, 0.2), fill='red'))
     #dwg.save()
-    ser = serial.Serial('/dev/cu.wchusbserial1410', 115200)
+    ser = serial.Serial('/dev/cu.wchusbserial410', 115200)
     startSVG()
 
     time.sleep(2)
 
     print("test")
-    ser.writeline("LI")
+    ser.write("LI")
 
     while True:
         data = ser.readline()
+        print repr(data)
 
-        if data[0] == 0x04:
+        if data[0] =='c':
             break
 
         values = data.split(',')
 
-        if not values[0].isdigit():
-            continue
+    	print repr(values)
+
+    #    values[0] = round(values[0])
+    #    values[1] = round(values[1])
+        values[0] = float(values[0])
+        values[1] = int(values[1])
+
+    #    if not values[0].isdigit():
+    #        continue
 
         addPoint(int(values[0]), int(values[1]))
 
     finishSVG()
-    
+
 def startSVG():
     global dwg
     dwg = svgwrite.Drawing('test.svg', profile='tiny')
@@ -83,6 +92,6 @@ def addPoint(angle, distance):
         #dwg.line(start=(2*cm, (2+y)*cm), end=(18*cm, (2+y)*cm))
         dwg.add(dwg.line(lastPoint, (x, y), stroke=svgwrite.rgb(10, 10, 16, '%')))
         lastPoint = (x, y)
-        
+
 if __name__ == '__main__':
     svgTest()
