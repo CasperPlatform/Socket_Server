@@ -6,6 +6,12 @@ import sqlite3
 import datetime
 import serial
 import math
+import enum
+
+class directionFlag(Enum):
+    Forward  = 'F'
+    Backward = 'B'
+    Idle     = 'I'
 
 def listen():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -31,8 +37,7 @@ def readMessage(message, sock, address):
     global continueSending
     global timer
 
-    print ord(message[0])
-    if not ord(message[0]) == 0x01:
+    if not message[0] == 'L':
         print 'Wrong message header.'
         return
     
@@ -54,7 +59,8 @@ def readMessage(message, sock, address):
     #conn.commit()
 
     flag = message[17]
-
+    global direction
+    
     if flag == 'S':
         continueSending = True
 
@@ -64,16 +70,24 @@ def readMessage(message, sock, address):
         thr2 = threading.Thread(target=videoTimer, args=(), kwargs={})
         thr2.start()
 
-        print 'Start Sending Video.'
+        print 'Start Sending Lidar Data.'
 
-    if flag == 's':
+    elif flag == 'F':
+        direction = directionFlag.Forward
+        timer = 0
+
+    elif flag == 'B':
+        direction = directionFlag.Backward
+        timer = 0
+
+    elif flag == 'I':
+        direction = directionFlag.Idle
+        timer = 0
+
+    elif flag == 's':
         continueSending = False
         timer = 0
-        print 'Stop Sending Video.'
-
-    if flag == 'I':
-        timer = 0
-        print 'Recieved Idle Update.'
+        print 'Stop Sending Lidar Data.'
         
 def startMeasure(sock, address):
 
