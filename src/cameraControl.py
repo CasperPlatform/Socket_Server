@@ -156,7 +156,7 @@ def readMessage(message, sock, address):
     print 'successfully parsed buffer!, sending to serial'
 
     cmd = bytearray()
-    cmd.append(message[17:])
+    cmd.append(message[17:24])
     print repr(cmd)
     sendCmd(cmd)
 
