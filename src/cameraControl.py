@@ -46,8 +46,7 @@ def sendCmd(cmd):
     sPort = '/dev/ttyACM0'
     ser = serial.Serial(sPort, 9600)
 
-    for byte in cmd:
-        ser.write(chr(byte))
+    ser.write(cmd)
 
 
 def readMessage(message, sock, address):
