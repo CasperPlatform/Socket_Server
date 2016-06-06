@@ -43,7 +43,7 @@ def listen():
             readMessage(data, sock, address)
 
 def sendCmd(cmd):
-    sPort = '/dev/ttyACM0'
+    sPort = '/dev/cu.usbmodem411'
     ser = serial.Serial(sPort, 9600)
 
     for byte in cmd:
@@ -161,4 +161,7 @@ def readMessage(message, sock, address):
     sendCmd(cmd)
 
 if __name__ == '__main__':
+    cmd = bytearray()
+    cmd.append(0x49)
+    sendCmd(cmd)
     listen()

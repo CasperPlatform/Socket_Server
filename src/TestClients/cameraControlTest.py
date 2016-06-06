@@ -2,18 +2,16 @@ import serial
 import time
 
 def sendCmd(cmd):
-    sPort = '/dev/ttyACM0'
-    ser = serial.Serial(sPort, 9600)
-
-    ser.write(cmd)
-#    for byte in cmd:
-#        ser.write(chr(byte))
+    sPort = '/dev/cu.usbmodem411'
+    ser = serial.Serial(sPort, 115200)
+    for byte in cmd:
+        ser.write(byte)
 
 message = bytearray()
-message.append(ord('C'))
-message.append(ord('I'))
+message.append(0x43)
+message.append(0x49)
 message.append(0x0)
-message.append(ord('I'))
+message.append(0x49)
 message.append(0x0)
 message.append(0xd)
 message.append(0xa)
