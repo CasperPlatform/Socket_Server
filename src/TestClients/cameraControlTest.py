@@ -5,8 +5,9 @@ def sendCmd(cmd):
     sPort = '/dev/ttyACM0'
     ser = serial.Serial(sPort, 9600)
 
-    for byte in cmd:
-        ser.write(chr(byte))
+    ser.write(cmd)
+#    for byte in cmd:
+#        ser.write(chr(byte))
 
 message = bytearray()
 message.append(ord('C'))
