@@ -11,7 +11,7 @@ import datetime
 from enum import Enum
 
 class typeFlag(Enum):
-    Drive = 'D'
+    Camera = 'C'
 class directionFlag(Enum):
     Forward  = 'F'
     Backward = 'B'
