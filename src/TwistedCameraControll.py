@@ -49,12 +49,12 @@ class USBclient(Protocol):
 
 class CasperProtocol(Protocol):
 
-    localToken = None
+
 
     def __init__(self,clients):
         print 'new protocol instance'
         self.clients = clients
-        self.localToken = (None,datetime.datetime.now)
+
         # get db instance
         #self.level = leveldb.LevelDB('path')
 
@@ -72,7 +72,7 @@ class CasperProtocol(Protocol):
         LF    =  ''
         tf    = typeFlag.Camera
         df    = XFlag.Right
-        af    = YFLAG.Upward
+        af    = YFlag.Upward
         speed = 0
         angle = 0
 
@@ -101,7 +101,7 @@ class CasperProtocol(Protocol):
             print 'this is a cameraMsg'
 
         if datarec[1] == ord(XFlag.Right) or datarec[1] == ord(XFlag.Left) or datarec[1] == ord(XFlag.Idle):
-            if datarec[1] == ord(dXFlag.Right):
+            if datarec[1] == ord(XFlag.Right):
                 print 'direction: Right'
                 df = XFlag.Right
             if datarec[1] == ord(XFlag.Left):
@@ -155,7 +155,6 @@ class CasperProtocol(Protocol):
 class SmartcarFactory(Factory):
     def __init__(self):
         print 'initing'
-        self.tokens={}
         self.clients = []
     def buildProtocol(self, addr):
         return CasperProtocol(self.clients)
@@ -166,6 +165,6 @@ Port = int(sys.argv[1])
 # factory.clients = []
 # factory.protocol = CasperProtocol
 reactor.listenTCP(Port,SmartcarFactory())
-SerialPort(USBclient(), '/dev/ttyACM0', reactor, baudrate='9600')
+SerialPort(USBclient(), '/dev/cu.wchusbserial410', reactor, baudrate='9600')
 print 'server started on', Port
 reactor.run()
