@@ -1,26 +1,27 @@
 import serial
 import time
 
+sPort = '/dev/cu.usbmodem411'
+ser = serial.Serial(sPort, 115200)
+cmd = bytearray()
 def sendCmd():
-    sPort = '/dev/cu.usbmodem411'
-    ser = serial.Serial(sPort, 115200)
-    cmd = bytearray()
-    cmd = ''.join(chr(x) for x in [0x43,0x52,0x78,0x55,0x78])
-    ser.write(cmd)
+    cmd = ''.join(chr(x) for x in [0x43,0x52,0x78,0x55,0x78,0x0d,0x0a])
+    #cmd = "\0x43\0x52\0x78\0x55\0x78\0x0d\0x0a"
+    for byte in cmd:
+        ser.write(byte)
+        print byte
 
 
 def sendCmd2():
-    sPort = '/dev/cu.usbmodem411'
-    ser = serial.Serial(sPort, 115200)
-    cmd = ''.join(chr(x) for x in [0x43,0x49,0x00,0x49,0x00])
-    ser.write(cmd)
+    cmd = ''.join(chr(x) for x in [0x43,0x49,0x00,0x49,0x00,0x0d,0x0a])
+    #cmd = "\0x43\0x49\0x00\0x49\0x00\0x0d\0x0a"
+    for byte in cmd:
+        ser.write(byte)
+        print byte
 
-cmd = bytearray()
-sPort = '/dev/cu.usbmodem411'
-ser = serial.Serial(sPort, 115200)
-cmd = ''.join(chr(x) for x in [0x43,0x52,0x78,0x55,0x78,0x0d,0x0a])
-ser.write(cmd)
-print repr(cmd)
 
-while(True):
-    print ser.readline()
+sendCmd()
+
+time.sleep(3)
+
+sendCmd2()

@@ -1,0 +1,8 @@
+import serial
+import times
+
+cmd = bytearray()
+ser = serial.Serial('/dev/cu.usbmodem411', 115200)
+cmd = ''.join(chr(x) for x in [0x43,0x52,0x78,0x55,0x78,0x0d,0x0a])
+ser.write(cmd)
+print repr(cmd)

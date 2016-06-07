@@ -1,18 +1,26 @@
 import serial
 import time
 
+sPort = '/dev/cu.usbmodem411'
+ser = serial.Serial(sPort, 9600)
+
 def sendCmd():
-    sPort = '/dev/cu.usbmodem411'
-    ser = serial.Serial(sPort, 115200)
-    ser.write("180\n")
+    ser.write(b"C")
+    ser.write(b"R")
+    ser.write(b"180")
+    ser.write(b"U")
+    ser.write(b"180")
+    ser.write(b"\n")
+
 
 
 def sendCmd2():
-    sPort = '/dev/cu.usbmodem411'
-    ser = serial.Serial(sPort, 115200)
-    ser.write("90\n")
-
-
+    ser.write(b"C")
+    ser.write(b"R")
+    ser.write(b"90")
+    ser.write(b"U")
+    ser.write(b"90")
+    ser.write(b"\n")
 
 
 sendCmd()
